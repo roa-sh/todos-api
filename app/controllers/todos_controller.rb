@@ -33,15 +33,12 @@ class TodosController < ApplicationController
   private
   # whitelist the params
   def todo_params
-    params.require(:todo).permit(:title, :created_by)
+    params.permit(:title, :created_by) # require(:todo).
   end
 
   # obtaining todo by id
   def set_todo
     @todo = Todo.find(params[:id])
-    puts "IDDDD:#{params[:id]}"
-    puts "todo:#{@todo[:title]}"
-
   end
 
 end
