@@ -5,7 +5,8 @@ class TodosController < ApplicationController
   # GET /todos
   def index
     @todos = Todo.all
-    json_response(@todos)
+    # json_response(@todos)
+    render json: @todos, each_serializer: TodoSerializer
   end
 
   # POST /todos
@@ -16,7 +17,8 @@ class TodosController < ApplicationController
 
   # GET /todos/:id
   def show
-    json_response(@todo) # todo declared in private methods
+    # json_response(@todo) # todo declared in private methods}
+    render json: @todo, serializer: TodoSerializer
   end
 
   # PUT /todos/:id
