@@ -6,10 +6,24 @@ RSpec.describe "Items", type: :request do
   let!(:items) { create_list(:item, 20, todo_id: todo.id) }
   let(:todo_id) { todo.id }
   let(:id) { items.first.id }
-
+  before(:each){
+    @user =  FactoryBot.create(:user) 
+    @sign_in_url = '/auth/sign_in' 
+    @sign_out_url = '/auth/sign_out'
+    @login_params = {
+        email: @user.email,
+        password: @user.password
+    }
+    post @sign_in_url, params: @login_params, as: :json
+    @headers = {
+      'uid' => response.headers['uid'],
+      'client' => response.headers['client'],
+      'access-token' => response.headers['access-token']
+    }
+  }
   # Test suite for GET /todos/:todo_id/items
   describe 'GET /todos/:todo_id/items' do
-    before { get "/todos/#{todo_id}/items" }
+    before { get "/todos/#{todo_id}/items", headers: @headers }
     
     context 'when todo exists' do
       it 'returns status code 200' do
@@ -36,7 +50,7 @@ RSpec.describe "Items", type: :request do
 
   # Test suite for GET /todos/:todo_id/items/:id
   describe 'GET /todos/:todos_id/items/:id' do
-    before { get "/todos/#{todo_id}/items/#{id}" }
+    before { get "/todos/#{todo_id}/items/#{id}", headers: @headers }
 
     context 'when todo item exists' do
       it 'returns status code 200' do
@@ -66,7 +80,7 @@ RSpec.describe "Items", type: :request do
     let(:valid_attributes) { { name: 'Visit Narnia', done: false } }
     
     context 'when request attributes are valid' do
-      before { post "/todos/#{todo_id}/items", params: valid_attributes }
+      before { post "/todos/#{todo_id}/items", params: valid_attributes, headers: @headers }
 
       it 'returns a status code 201' do
         expect(response).to have_http_status(201)
@@ -74,7 +88,7 @@ RSpec.describe "Items", type: :request do
     end
 
     context 'when an invalid request' do
-      before { post "/todos/#{todo_id}/items", params:{} }
+      before { post "/todos/#{todo_id}/items", params:{}, headers: @headers }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -89,7 +103,7 @@ RSpec.describe "Items", type: :request do
   # Test suite for  PUT /todos/:todo_id/items/:id
   describe 'PUT /todos/:todo_id/items/:id' do
     let(:valid_attributes) { { name: 'Mozart' } }
-    before { put "/todos/#{todo_id}/items/#{id}", params: valid_attributes }
+    before { put "/todos/#{todo_id}/items/#{id}", params: valid_attributes, headers: @headers }
 
     context 'when item exists' do
       it 'returns status code 204' do
@@ -117,7 +131,7 @@ RSpec.describe "Items", type: :request do
 
   # Test suite for DELETE /todos/:todo_id/item/:id
   describe 'DELETE /todos/:id_todo/items/:id' do
-    before { delete "/todos/#{todo_id}/items/#{id}" }
+    before { delete "/todos/#{todo_id}/items/#{id}", headers: @headers }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
